@@ -73,7 +73,8 @@ fun MainScreen() {
                             selectedIconColor = Color.Black,
                             selectedTextColor = Color.Black,
                             unselectedIconColor = Color.Gray,
-                            unselectedTextColor = Color.Gray
+                            unselectedTextColor = Color.Gray,
+                            indicatorColor = Color.LightGray
                         )
                     )
                 }
@@ -96,7 +97,9 @@ fun MainScreen() {
             }
             composable(NavRoutes.FAVORITES) {
                 // Ecran favoris (à implémenter si besoin, vide pour l'instant)
-                Text("Mes Favoris", modifier = Modifier.padding(innerPadding))
+                FavoritesScreen(onDrinkClick = { drinkId ->
+                    navController.navigate(NavRoutes.drinkDetail(drinkId))
+                })
             }
             composable(NavRoutes.DRINK_LIST) { backStackEntry ->
                 val category = backStackEntry.arguments?.getString("category") ?: ""
@@ -108,8 +111,9 @@ fun MainScreen() {
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(NavRoutes.DRINK_DETAIL) {
-                DetailCocktailScreen()
+            composable(NavRoutes.DRINK_DETAIL) { backStackEntry ->
+                val drinkId = backStackEntry.arguments?.getString("drinkId")
+                DetailCocktailScreen(drinkId = drinkId)
             }
         }
     }

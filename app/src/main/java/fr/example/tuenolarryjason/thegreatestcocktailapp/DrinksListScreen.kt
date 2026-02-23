@@ -4,11 +4,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -21,11 +26,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,8 +48,16 @@ fun DrinksListScreen(
     onBack: () -> Unit
 ) {
     val lightViolet = Color(0xFFE1BEE7)
-    // Pour l'exemple, une liste statique de boissons.
-    val drinks = listOf("Drink 1", "Drink 2", "Drink 3", "Drink 4")
+    var drinks by remember { mutableStateOf<List<DrinkListItem>>(emptyList()) }
+
+    LaunchedEffect(category) {
+        try {
+            val response = NetworkManager.apiService.getDrinksByCategory(category)
+            drinks = response.drinks
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     Scaffold(
         containerColor = lightViolet,
@@ -45,7 +66,11 @@ fun DrinksListScreen(
                 title = { Text(category, fontWeight = FontWeight.Bold, color = Color.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
@@ -59,14 +84,18 @@ fun DrinksListScreen(
                 .padding(horizontal = 16.dp)
         ) {
             items(drinks) { drink ->
-                DrinkItem(name = drink, onClick = { onDrinkClick(drink) })
+                DrinkItem(
+                    name = drink.name,
+                    imageUrl = drink.imageUrl,
+                    onClick = { onDrinkClick(drink.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun DrinkItem(name: String, onClick: () -> Unit) {
+fun DrinkItem(name: String, imageUrl: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -75,13 +104,24 @@ fun DrinkItem(name: String, onClick: () -> Unit) {
             .background(Color.White.copy(alpha = 0.5f))
             .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .padding(20.dp)
+            .padding(12.dp)
     ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Medium,
-            color = Color.Black
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = name,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black
+            )
+        }
     }
 }
