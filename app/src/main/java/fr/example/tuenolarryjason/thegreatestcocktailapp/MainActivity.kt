@@ -87,7 +87,7 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavRoutes.RANDOM) {
-                // Pour l'instant on réutilise le DetailCocktailScreen comme écran random
+
                 DetailCocktailScreen()
             }
             composable(NavRoutes.CATEGORIES) {
@@ -96,7 +96,7 @@ fun MainScreen() {
                 })
             }
             composable(NavRoutes.FAVORITES) {
-                // Ecran favoris (à implémenter si besoin, vide pour l'instant)
+
                 FavoritesScreen(onDrinkClick = { drinkId ->
                     navController.navigate(NavRoutes.drinkDetail(drinkId))
                 })

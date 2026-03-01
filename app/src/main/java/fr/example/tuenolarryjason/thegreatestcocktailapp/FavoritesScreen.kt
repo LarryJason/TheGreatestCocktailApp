@@ -35,7 +35,6 @@ fun FavoritesScreen(
     var favorites by remember { mutableStateOf<List<DrinkListItem>>(emptyList()) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Observer le cycle de vie pour rafraîchir la liste à chaque fois que l'écran devient visible (ON_RESUME)
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
